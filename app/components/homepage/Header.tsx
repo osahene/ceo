@@ -1,4 +1,3 @@
-// components/homepage/header.tsx
 "use client";
 
 import React from "react";
@@ -28,10 +27,9 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          {/* Sidebar Toggle Button */}
           <button
             onClick={() => dispatch(toggleSidebar())}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg lg:hidden"
           >
             <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
           </button>
@@ -46,7 +44,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Rest of your header code remains the same */}
         <div className="flex items-center space-x-4">
           {/* Search */}
           <div className="relative hidden md:block">
@@ -61,7 +58,7 @@ export default function Header() {
           {/* Dark Mode Toggle */}
           <button
             onClick={() => dispatch(toggleDarkMode())}
-            className="p-2 hover:bg-gray-100 bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 bg-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             {darkMode ? (
               <Sun className="w-6 h-6 text-yellow-500" />
