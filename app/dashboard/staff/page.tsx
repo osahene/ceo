@@ -31,7 +31,7 @@ export default function StaffPage() {
     {
       id: "1",
       name: "John Manager",
-      email: "john.manager@driveon.com",
+      email: "john.manager@yosrentals.com",
       phone: "+1 234 567 8901",
       role: "Transport Manager",
       department: "Operations",
@@ -42,7 +42,7 @@ export default function StaffPage() {
     {
       id: "2",
       name: "Sarah Driver",
-      email: "sarah.driver@driveon.com",
+      email: "sarah.driver@yosrentals.com",
       phone: "+1 234 567 8902",
       role: "Driver",
       department: "Operations",
@@ -53,7 +53,7 @@ export default function StaffPage() {
     {
       id: "3",
       name: "Mark Finance",
-      email: "mark.finance@driveon.com",
+      email: "mark.finance@yosrentals.com",
       phone: "+1 234 567 8903",
       role: "Finance Officer",
       department: "Finance",
@@ -64,7 +64,7 @@ export default function StaffPage() {
     {
       id: "4",
       name: "Lisa Admin",
-      email: "lisa.admin@driveon.com",
+      email: "lisa.admin@yosrentals.com",
       phone: "+1 234 567 8904",
       role: "Administrator",
       department: "IT",
@@ -75,7 +75,7 @@ export default function StaffPage() {
     {
       id: "5",
       name: "David Mechanic",
-      email: "david.mechanic@driveon.com",
+      email: "david.mechanic@yosrentals.com",
       phone: "+1 234 567 8905",
       role: "Maintenance Technician",
       department: "Maintenance",

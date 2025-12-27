@@ -1,4 +1,3 @@
-// app/dashboard/cars/[id]/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -163,7 +162,7 @@ export default function CarDetailPage() {
         <nav className="flex space-x-8">
           {[
             "overview",
-            "timeline",
+            // "timeline",
             "analytics",
             "maintenance",
             "insurance",
@@ -192,7 +191,7 @@ export default function CarDetailPage() {
         {/* Left Column - Stats */}
         <div className="lg:col-span-2 space-y-6">
           {/* Timeline */}
-          {activeTab === "timeline" && (
+          {activeTab === "overview" && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                 Vehicle Timeline

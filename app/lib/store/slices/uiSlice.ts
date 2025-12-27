@@ -23,6 +23,9 @@ const uiSlice = createSlice({
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
     },
+    setDarkMode: (state, action: PayloadAction<boolean>) => {
+      state.darkMode = action.payload;
+    },
     setSidebar: (state, action: PayloadAction<boolean>) => {
       state.sidebarOpen = action.payload;
     },
@@ -32,5 +35,5 @@ const uiSlice = createSlice({
   },
 });
 
-export const { toggleDarkMode, toggleSidebar, setSidebar, setCurrentPage } = uiSlice.actions;
+export const { toggleDarkMode, setDarkMode, toggleSidebar, setSidebar, setCurrentPage } = uiSlice.actions;
 export default uiSlice.reducer;

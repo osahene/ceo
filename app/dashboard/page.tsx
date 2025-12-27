@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useThreeJSScene } from "../components/homepage/ThreeJSScene";
@@ -9,7 +9,6 @@ import ChartsSection from "../components/homepage/ChartsSection";
 import RecentBookings from "../components/homepage/Bookings";
 import CarAnalytics from "../components/homepage/Analytics";
 import SystemStatus from "../components/homepage/SystemStatus";
-import { Suspense } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,10 +44,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100"
-    >
+    <div ref={containerRef} className="min-h-screen ">
       {/* Background Three.js Scene */}
       <div className="fixed inset-0 z-0 opacity-10">
         <Suspense fallback={null}>

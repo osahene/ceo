@@ -66,7 +66,7 @@ export default function CarsPage() {
           </p>
         </div>
         <button
-          onClick={() => router.push("/dashboard/cars/new")}
+          onClick={() => router.push("/dashboard/cars/register")}
           className="inline-flex items-center px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90 transition-opacity"
         >
           <Plus className="w-5 h-5 mr-2" />

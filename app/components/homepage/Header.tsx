@@ -82,10 +82,10 @@ export default function Header() {
             </div>
             <div className="hidden md:block">
               <p className="text-sm font-semibold text-gray-800 dark:text-white">
-                Super Admin
+                Dennis Oduro Akomeah
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                admin@driveon.com
+                admin@yosrentals.com
               </p>
             </div>
             <ChevronDown className="w-5 h-5 text-gray-400" />
