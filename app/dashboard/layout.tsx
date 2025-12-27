@@ -38,7 +38,7 @@ export default function DashboardLayout({
         {/* Main Content */}
         <div
           className={`flex-1 transition-all duration-300 ${
-            sidebarOpen ? "md:ml-28" : "ml-0"
+            sidebarOpen ? "md:ml-62" : "md:ml-16"
           }`}
         >
           <Header />

@@ -58,8 +58,8 @@ export default function CarsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Fleet Management
+          <h2 className="text-2xl font-bold text-gray-600 dark:text-white">
+            Fleets Management
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Manage your rental fleet and vehicle information
