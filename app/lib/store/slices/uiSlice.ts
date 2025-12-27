@@ -1,3 +1,4 @@
+// lib/store/slices/uiSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UIState {
@@ -12,15 +13,12 @@ const initialState: UIState = {
   currentPage: 'dashboard',
 };
 
-export const uiSlice = createSlice({
+const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
     toggleDarkMode: (state) => {
       state.darkMode = !state.darkMode;
-    },
-    setDarkMode: (state, action: PayloadAction<boolean>) => {
-      state.darkMode = action.payload;
     },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
@@ -34,5 +32,5 @@ export const uiSlice = createSlice({
   },
 });
 
-export const { toggleDarkMode, setDarkMode, toggleSidebar, setSidebar, setCurrentPage } = uiSlice.actions;
+export const { toggleDarkMode, toggleSidebar, setSidebar, setCurrentPage } = uiSlice.actions;
 export default uiSlice.reducer;
