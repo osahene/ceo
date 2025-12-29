@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../lib/store/store";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../../lib/store/store";
+import {
+  setSelectedCar,
+  updateCar,
+  deleteCar,
+  Car,
+  TimelineEvent,
+} from "../../../lib/store/slices/carsSlice";
+import { useRouter, useParams } from "next/navigation";
+
 import {
   ArrowLeft,
   Calendar,
@@ -15,6 +23,8 @@ import {
   Edit,
   Download,
   ChevronRight,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   LineChart,
@@ -29,12 +39,185 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Type for new event
+interface NewEvent {
+  type: "revenue" | "maintenance" | "insurance" | "accident" | "other";
+  title: string;
+  description: string;
+  date: string;
+  amount: number;
+}
+
+// Extracted Components
+const DeleteConfirmationModal: React.FC<{
+  car: Car;
+  onClose: () => void;
+  onConfirm: () => void;
+}> = ({ car, onClose, onConfirm }) => (
+  <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="flex items-center justify-center min-h-screen px-4">
+      <div
+        className="fixed inset-0 bg-black/50 transition-opacity"
+        onClick={onClose}
+      />
+
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Delete Vehicle
+            </h3>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Are you sure you want to delete{" "}
+            <strong>
+              {car.make} {car.model}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            All associated data including bookings, maintenance records, and
+            insurance information will be permanently deleted.
+          </p>
+        </div>
+
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Delete Vehicle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TimelineEventItem: React.FC<{
+  event: TimelineEvent;
+  isLast: boolean;
+}> = ({ event, isLast }) => {
+  const getEventColor = (type: TimelineEvent["type"]) => {
+    switch (type) {
+      case "revenue":
+        return "bg-green-500";
+      case "maintenance":
+        return "bg-yellow-500";
+      case "insurance":
+        return "bg-blue-500";
+      case "accident":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  return (
+    <div className="flex items-start space-x-4">
+      <div className="flex flex-col items-center">
+        <div className={`w-3 h-3 rounded-full ${getEventColor(event.type)}`} />
+        {!isLast && (
+          <div className="w-px h-full bg-gray-300 dark:bg-gray-600 mt-1" />
+        )}
+      </div>
+      <div className="flex-1 pb-4">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-gray-800 dark:text-white">
+            {event.title}
+          </h4>
+          <span className="text-sm text-gray-500">
+            {new Date(event.date).toLocaleDateString()}
+          </span>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+          {event.description}
+        </p>
+        {event.amount !== undefined && (
+          <p className="text-sm font-medium mt-1">
+            Amount: <span className="text-blue-600">${event.amount}</span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const getStatusClasses = (status: string) => {
+    switch (status) {
+      case "available":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "rented":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "maintenance":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "retired":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+    }
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses(
+        status
+      )}`}
+    >
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </span>
+  );
+};
+
+const TabButton: React.FC<{
+  tab: string;
+  activeTab: string;
+  onClick: (tab: string) => void;
+}> = ({ tab, activeTab, onClick }) => (
+  <button
+    onClick={() => onClick(tab)}
+    className={`
+      py-2 px-1 border-b-2 font-medium text-sm transition-colors
+      ${
+        activeTab === tab
+          ? "border-blue-500 text-blue-600 dark:text-blue-400"
+          : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+      }
+    `}
+  >
+    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+  </button>
+);
+
 export default function CarDetailPage() {
   const router = useRouter();
-  const { selectedCar } = useSelector((state: RootState) => state.cars);
-  const [activeTab, setActiveTab] = useState("overview");
+  const params = useParams();
+  const dispatch = useDispatch<AppDispatch>();
 
-  // Sample data for charts
+  // Get selected car from Redux store
+  const { selectedCar, cars } = useSelector((state: RootState) => state.cars);
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [newEvent, setNewEvent] = useState<NewEvent>({
+    type: "maintenance",
+    title: "",
+    description: "",
+    date: new Date().toISOString().split("T")[0],
+    amount: 0,
+  });
+
+  // Sample data for charts - This should come from your Redux store in real app
   const revenueData = [
     { month: "Jan", revenue: 4500, expenses: 1200 },
     { month: "Feb", revenue: 5200, expenses: 1500 },
@@ -44,49 +227,45 @@ export default function CarDetailPage() {
     { month: "Jun", revenue: 6800, expenses: 2500 },
   ];
 
-  const timelineEvents = [
-    {
-      date: "2023-01-15",
-      type: "registration",
-      title: "Car Registered",
-      description: "Vehicle added to fleet",
-    },
-    {
-      date: "2023-02-20",
-      type: "revenue",
-      title: "First Booking",
-      description: "First rental completed",
-      amount: 450,
-    },
-    {
-      date: "2023-03-15",
-      type: "maintenance",
-      title: "First Service",
-      description: "Regular maintenance",
-      amount: 300,
-    },
-    {
-      date: "2023-04-10",
-      type: "insurance",
-      title: "Insurance Renewal",
-      description: "Annual insurance renewed",
-      amount: 1200,
-    },
-    {
-      date: "2023-05-22",
-      type: "accident",
-      title: "Minor Accident",
-      description: "Rear bumper damage",
-      amount: 850,
-    },
-    {
-      date: "2023-06-18",
-      type: "revenue",
-      title: "Highest Revenue Month",
-      description: "Multiple long-term rentals",
-      amount: 6800,
-    },
-  ];
+  // Sample timeline events - This should come from selectedCar.timelineEvents in real app
+  const timelineEvents: TimelineEvent[] = selectedCar?.timelineEvents?.length
+    ? selectedCar.timelineEvents
+    : [
+        {
+          id: "1",
+          date: "2023-01-15",
+          type: "other",
+          title: "Car Registered",
+          description: "Vehicle added to fleet",
+        },
+        {
+          id: "2",
+          date: "2023-02-20",
+          type: "revenue",
+          title: "First Booking",
+          description: "First rental completed",
+          amount: 450,
+        },
+        {
+          id: "3",
+          date: "2023-03-15",
+          type: "maintenance",
+          title: "First Service",
+          description: "Regular maintenance",
+          amount: 300,
+        },
+      ];
+
+  // Load car from cars list if selectedCar is null (when refreshing page)
+  useEffect(() => {
+    const carId = params.id as string;
+    if (!selectedCar && carId) {
+      const car = cars.find((c) => c.id === carId);
+      if (car) {
+        dispatch(setSelectedCar(car));
+      }
+    }
+  }, [selectedCar, cars, params.id, dispatch]);
 
   if (!selectedCar) {
     return (
@@ -96,7 +275,7 @@ export default function CarDetailPage() {
             Car not found
           </h3>
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push("/dashboard/cars")}
             className="text-blue-600 dark:text-blue-400 hover:underline"
           >
             Go back to cars list
@@ -124,13 +303,68 @@ export default function CarDetailPage() {
     return { status: "active", color: "bg-green-500", text: "Active" };
   };
 
+  const handleEditSubmit = () => {
+    router.push(`/dashboard/cars/${selectedCar.id}/edit`);
+  };
+
+  const handleAddEvent = () => {
+    if (!newEvent.title.trim() || !newEvent.date) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const event: TimelineEvent = {
+      id: `EVT-${Date.now()}`,
+      date: newEvent.date,
+      type: newEvent.type,
+      title: newEvent.title,
+      description: newEvent.description,
+      amount: newEvent.amount,
+    };
+
+    const updatedCar: Car = {
+      ...selectedCar,
+      timelineEvents: [...selectedCar.timelineEvents, event],
+    };
+
+    dispatch(updateCar(updatedCar));
+    dispatch(setSelectedCar(updatedCar));
+    setNewEvent({
+      type: "maintenance",
+      title: "",
+      description: "",
+      date: new Date().toISOString().split("T")[0],
+      amount: 0,
+    });
+    alert("Event added successfully!");
+  };
+
+  const handleDeleteCar = () => {
+    dispatch(deleteCar(selectedCar.id));
+    setShowDeleteModal(false);
+    router.push("/dashboard/cars");
+    alert("Car deleted successfully!");
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  const getUtilizationRate = () => {
+    if (!selectedCar.bookings.length) return 0;
+    const completedBookings = selectedCar.bookings.filter(
+      (b) => b.status === "completed"
+    ).length;
+    return Math.round((completedBookings / selectedCar.bookings.length) * 100);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => router.back()}
+            onClick={handleBack}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -146,42 +380,57 @@ export default function CarDetailPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <Trash2 className="w-4 h-4 inline mr-2" />
+            Delete
+          </button>
+          <button
+            onClick={handleEditSubmit}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+          >
             <Edit className="w-4 h-4 inline mr-2" />
             Edit
           </button>
-          <button className="px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90">
+          <button
+            onClick={() =>
+              router.push(`/dashboard/cars/${selectedCar.id}/addevent`)
+            }
+            className="px-4 py-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:opacity-90"
+          >
             <Plus className="w-4 h-4 inline mr-2" />
             Add Event
           </button>
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          car={selectedCar}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteCar}
+        />
+      )}
+
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8">
           {[
             "overview",
-            // "timeline",
             "analytics",
             "maintenance",
             "insurance",
             "bookings",
           ].map((tab) => (
-            <button
+            <TabButton
               key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === tab
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                }
-              `}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
+              tab={tab}
+              activeTab={activeTab}
+              onClick={setActiveTab}
+            />
           ))}
         </nav>
       </div>
@@ -198,45 +447,11 @@ export default function CarDetailPage() {
               </h3>
               <div className="space-y-4">
                 {timelineEvents.map((event, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          event.type === "revenue"
-                            ? "bg-green-500"
-                            : event.type === "maintenance"
-                            ? "bg-yellow-500"
-                            : event.type === "insurance"
-                            ? "bg-blue-500"
-                            : event.type === "accident"
-                            ? "bg-red-500"
-                            : "bg-gray-500"
-                        }`}
-                      />
-                      {index < timelineEvents.length - 1 && (
-                        <div className="w-px h-full bg-gray-300 dark:bg-gray-600 mt-1" />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-800 dark:text-white">
-                          {event.title}
-                        </h4>
-                        <span className="text-sm text-gray-500">
-                          {new Date(event.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                        {event.description}
-                      </p>
-                      {event.amount && (
-                        <p className="text-sm font-medium mt-1">
-                          Amount:{" "}
-                          <span className="text-blue-600">${event.amount}</span>
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <TimelineEventItem
+                    key={event.id || index}
+                    event={event}
+                    isLast={index === timelineEvents.length - 1}
+                  />
                 ))}
               </div>
             </div>
@@ -468,54 +683,55 @@ export default function CarDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedCar.bookings.map((booking) => (
-                      <tr
-                        key={booking.id}
-                        className="border-b border-gray-100 dark:border-gray-700"
-                      >
-                        <td className="py-3 px-4">{booking.customerName}</td>
-                        <td className="py-3 px-4">
-                          {new Date(booking.startDate).toLocaleDateString()} -{" "}
-                          {new Date(booking.endDate).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4">
-                          {Math.ceil(
-                            (new Date(booking.endDate).getTime() -
-                              new Date(booking.startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          )}{" "}
-                          days
-                        </td>
-                        <td className="py-3 px-4 font-medium">
-                          ${booking.totalAmount}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`
-                            px-2 py-1 rounded-full text-xs font-medium
-                            ${
-                              booking.status === "completed"
-                                ? "bg-green-100 text-green-800"
-                                : ""
-                            }
-                            ${
-                              booking.status === "active"
-                                ? "bg-blue-100 text-blue-800"
-                                : ""
-                            }
-                            ${
-                              booking.status === "cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : ""
-                            }
-                          `}
-                          >
-                            {booking.status.charAt(0).toUpperCase() +
-                              booking.status.slice(1)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {selectedCar.bookings.map((booking) => {
+                      const duration = Math.ceil(
+                        (new Date(booking.endDate).getTime() -
+                          new Date(booking.startDate).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      );
+
+                      return (
+                        <tr
+                          key={booking.id}
+                          className="border-b border-gray-100 dark:border-gray-700"
+                        >
+                          <td className="py-3 px-4">{booking.customerName}</td>
+                          <td className="py-3 px-4">
+                            {new Date(booking.startDate).toLocaleDateString()} -{" "}
+                            {new Date(booking.endDate).toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-4">{duration} days</td>
+                          <td className="py-3 px-4 font-medium">
+                            ${booking.totalAmount}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span
+                              className={`
+                                px-2 py-1 rounded-full text-xs font-medium
+                                ${
+                                  booking.status === "completed"
+                                    ? "bg-green-100 text-green-800"
+                                    : ""
+                                }
+                                ${
+                                  booking.status === "active"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : ""
+                                }
+                                ${
+                                  booking.status === "cancelled"
+                                    ? "bg-red-100 text-red-800"
+                                    : ""
+                                }
+                              `}
+                            >
+                              {booking.status.charAt(0).toUpperCase() +
+                                booking.status.slice(1)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -548,24 +764,7 @@ export default function CarDetailPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Status</span>
-                <span
-                  className={`
-                  px-3 py-1 rounded-full text-sm font-medium
-                  ${
-                    selectedCar.status === "available"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : ""
-                  }
-                  ${
-                    selectedCar.status === "rented"
-                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                      : ""
-                  }
-                `}
-                >
-                  {selectedCar.status.charAt(0).toUpperCase() +
-                    selectedCar.status.slice(1)}
-                </span>
+                <StatusBadge status={selectedCar.status} />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600 dark:text-gray-400">
@@ -580,15 +779,7 @@ export default function CarDetailPage() {
                   Utilization Rate
                 </span>
                 <span className="font-medium text-gray-800 dark:text-white">
-                  {Math.round(
-                    ((selectedCar.bookings.filter(
-                      (b) => b.status === "completed"
-                    ).length *
-                      30) /
-                      365) *
-                      100
-                  )}
-                  %
+                  {getUtilizationRate()}%
                 </span>
               </div>
             </div>
