@@ -83,7 +83,7 @@ export default function Header() {
                 Super Admin
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                admin@driveon.com
+                admin@yosrentals.com
               </p>
             </div>
             <ChevronDown className="w-5 h-5 text-gray-400" />
