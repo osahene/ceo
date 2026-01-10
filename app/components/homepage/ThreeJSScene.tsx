@@ -1,3 +1,4 @@
+// components/ThreeJSScene.tsx - UPDATED VERSION
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
