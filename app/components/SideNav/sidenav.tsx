@@ -16,8 +16,8 @@ import {
   X,
   ChevronRight,
   Settings,
-  Bell,
-  HelpCircle,
+  // Bell,
+  // HelpCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -88,7 +88,7 @@ export default function SideNav() {
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-linear-to-r from-blue-600 to-indigo-600 rounded-lg" />
             <span className="text-xl font-bold text-gray-800 dark:text-white">
-              DriveOn
+              YOS Rentals
             </span>
           </div>
           <button
@@ -148,10 +148,10 @@ export default function SideNav() {
               <Settings className="w-5 h-5" />
               <span className="font-medium">Settings</span>
             </button>
-            <button className="flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl">
+            {/* <button className="flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl">
               <HelpCircle className="w-5 h-5" />
               <span className="font-medium">Help & Support</span>
-            </button>
+            </button> */}
           </div>
         </div>
       </aside>
