@@ -37,13 +37,17 @@ export default function SystemStatus() {
   }, []);
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+    <div className="bg-white dark:bg-gray-800  backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">System Status</h3>
-          <p className="text-sm text-gray-600">Infrastructure monitoring</p>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            System Status
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-white">
+            Infrastructure monitoring
+          </p>
         </div>
-        <AlertCircle className="w-6 h-6 text-gray-400" />
+        <AlertCircle className="w-6 h-6 text-gray-400 dark:text-white" />
       </div>
 
       <div className="space-y-6">
@@ -72,11 +76,17 @@ export default function SystemStatus() {
                     />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-800">{system.name}</p>
-                    <p className="text-sm text-gray-500">{system.status}</p>
+                    <p className="font-medium text-gray-800 dark:text-white">
+                      {system.name}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-white">
+                      {system.status}
+                    </p>
                   </div>
                 </div>
-                <span className="font-bold text-gray-800">{system.value}%</span>
+                <span className="font-bold text-gray-800 dark:text-white">
+                  {system.value}%
+                </span>
               </div>
 
               <div className="w-full bg-gray-200 rounded-full h-2">

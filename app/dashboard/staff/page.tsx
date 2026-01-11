@@ -15,6 +15,7 @@ import {
   Search,
   Key,
 } from "lucide-react";
+import MetricsGrid from "@/app/components/homepage/MetricsGrid";
 
 export default function StaffPage() {
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -135,6 +136,49 @@ export default function StaffPage() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
     }
   };
+  const totalStaff = staffMembers.length;
+  const activeStaff = staffMembers.filter(
+    (staff) => staff.status === "active"
+  ).length;
+
+  const departmentsCount = new Set(
+    staffMembers.map((staff) => staff.department)
+  ).size;
+
+  const driversCount = staffMembers.filter(
+    (staff) => staff.role.toLowerCase() === "driver"
+  ).length;
+
+  const staffMetrics = [
+    {
+      title: "Total Staff",
+      value: totalStaff,
+      change: "0%",
+      icon: Users,
+      color: "from-blue-500 to-indigo-500",
+    },
+    {
+      title: "Active Staff",
+      value: activeStaff,
+      change: "0%",
+      icon: BadgeCheck,
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      title: "Departments",
+      value: departmentsCount,
+      change: "0%",
+      icon: Shield,
+      color: "from-purple-500 to-fuchsia-500",
+    },
+    {
+      title: "Drivers",
+      value: driversCount,
+      change: "0%",
+      icon: Users,
+      color: "from-yellow-500 to-amber-500",
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -158,60 +202,7 @@ export default function StaffPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Total Staff
-              </p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                24
-              </p>
-            </div>
-            <Users className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Active Staff
-              </p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                20
-              </p>
-            </div>
-            <BadgeCheck className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Departments
-              </p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                6
-              </p>
-            </div>
-            <Shield className="w-8 h-8 text-purple-500" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Drivers
-              </p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                8
-              </p>
-            </div>
-            <Users className="w-8 h-8 text-yellow-500" />
-          </div>
-        </div>
-      </div>
+      <MetricsGrid metrics={staffMetrics} />
 
       {/* Filters and Search */}
       <div className="flex flex-col md:flex-row gap-4">
