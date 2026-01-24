@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Car {
   id: string;
@@ -7,12 +7,15 @@ export interface Car {
   year: number;
   color: string;
   registrationDate: string;
-  dailyRate: number;
-  status: 'available' | 'rented' | 'maintenance' | 'retired';
+  dailyRate?: number;
+  depreciationRate?: number;
+  currentValue?: number;
+  status: "available" | "rented" | "maintenance" | "retired";
   imageUrl: string;
   rating: number;
   totalRevenue: number;
   totalExpenses: number;
+  purchasePrice?: number;
   timelineEvents: TimelineEvent[];
   maintenanceRecords: MaintenanceRecord[];
   insurancePolicies: InsurancePolicy[];
@@ -22,7 +25,13 @@ export interface Car {
 export interface TimelineEvent {
   id: string;
   date: string;
-  type: 'revenue' | 'maintenance' | 'insurance' | 'accident' | 'other';
+  type:
+    | "revenue"
+    | "maintenance"
+    | "insurance"
+    | "accident"
+    | "inspection"
+    | "other";
   title: string;
   description: string;
   amount?: number;
@@ -44,7 +53,7 @@ export interface InsurancePolicy {
   startDate: string;
   endDate: string;
   premium: number;
-  status: 'active' | 'expired' | 'pending';
+  status: "active" | "expired" | "pending";
 }
 
 export interface CarBooking {
@@ -54,7 +63,7 @@ export interface CarBooking {
   startDate: string;
   endDate: string;
   totalAmount: number;
-  status: 'active' | 'completed' | 'cancelled';
+  status: "active" | "completed" | "cancelled";
 }
 
 interface CarsState {
@@ -67,15 +76,15 @@ interface CarsState {
 const initialState: CarsState = {
   cars: [
     {
-      id: '1',
-      make: 'Tesla',
-      model: 'Model 3',
+      id: "1",
+      make: "Tesla",
+      model: "Model 3",
       year: 2023,
-      color: '#3B82F6',
-      registrationDate: '2023-01-15',
+      color: "#3B82F6",
+      registrationDate: "2023-01-15",
       dailyRate: 120,
-      status: 'available',
-      imageUrl: '/cars/tesla-model3.jpg',
+      status: "available",
+      imageUrl: "/cars/tesla-model3.jpg",
       rating: 4.5,
       totalRevenue: 45000,
       totalExpenses: 12000,
@@ -92,7 +101,7 @@ const initialState: CarsState = {
 };
 
 export const carsSlice = createSlice({
-  name: 'cars',
+  name: "cars",
   initialState,
   reducers: {
     setCars: (state, action: PayloadAction<Car[]>) => {
@@ -105,16 +114,17 @@ export const carsSlice = createSlice({
       state.cars.push(action.payload);
     },
     updateCar: (state, action: PayloadAction<Car>) => {
-      const index = state.cars.findIndex(car => car.id === action.payload.id);
+      const index = state.cars.findIndex((car) => car.id === action.payload.id);
       if (index !== -1) {
         state.cars[index] = action.payload;
       }
     },
     deleteCar: (state, action: PayloadAction<string>) => {
-      state.cars = state.cars.filter(car => car.id !== action.payload);
+      state.cars = state.cars.filter((car) => car.id !== action.payload);
     },
   },
 });
 
-export const { setCars, setSelectedCar, addCar, updateCar, deleteCar } = carsSlice.actions;
+export const { setCars, setSelectedCar, addCar, updateCar, deleteCar } =
+  carsSlice.actions;
 export default carsSlice.reducer;
