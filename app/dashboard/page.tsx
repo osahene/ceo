@@ -8,7 +8,6 @@ import MetricsGrid from "../components/homepage/MetricsGrid";
 import ChartsSection from "../components/homepage/ChartsSection";
 import RecentBookings from "../components/homepage/Bookings";
 import CarAnalytics from "../components/homepage/Analytics";
-import SystemStatus from "../components/homepage/SystemStatus";
 import { Suspense } from "react";
 
 import { LuUser, LuDollarSign, LuCar, LuCalendar } from "react-icons/lu";
@@ -91,17 +90,11 @@ export default function DashboardPage() {
           {/* Key Metrics */}
           <MetricsGrid metrics={metrics} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column - Charts */}
             <div className="lg:col-span-2 space-y-6">
               <ChartsSection />
               <RecentBookings />
-            </div>
-
-            {/* Right Column - Analytics & Status */}
-            <div className="space-y-6">
-              <CarAnalytics />
-              <SystemStatus />
             </div>
           </div>
         </main>

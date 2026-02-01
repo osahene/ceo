@@ -21,6 +21,7 @@ import { FiPieChart, FiBarChart } from "react-icons/fi";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import CarAnalytics from "./Analytics";
 
 // Register GSAP Plugin
 if (typeof window !== "undefined") {
@@ -123,48 +124,7 @@ export default function ChartsSection() {
             </ResponsiveContainer>
           </div>
         </div>
-
-        {/* Car Type Distribution */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-gray-800  backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                  Car Type Distribution
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white">
-                  Fleet composition analysis
-                </p>
-              </div>
-              <FiPieChart className="w-5 h-5 text-purple-500" />
-            </div>
-
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={carTypeData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                    }
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {carTypeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Booking Performance */}
+ {/* Booking Performance */}
           <div className="bg-white dark:bg-gray-800  backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -213,7 +173,49 @@ export default function ChartsSection() {
               </div>
             </div>
           </div>
+        {/* Car Type Distribution */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-gray-800  backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Car Type Distribution
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-white">
+                  Fleet composition analysis
+                </p>
+              </div>
+              <FiPieChart className="w-5 h-5 text-purple-500" />
+            </div>
+
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={carTypeData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                    }
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {carTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+<CarAnalytics />
+
         </div>
+         
       </div>
     </div>
   );
