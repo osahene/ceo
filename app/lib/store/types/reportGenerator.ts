@@ -1,10 +1,4 @@
-import {
-  Car,
-  //   CarBooking,
-  //   MaintenanceRecord,
-  //   InsurancePolicy,
-  //   TimelineEvent,
-} from "../slices/carsSlice";
+import { Car } from "../types/car";
 import {
   FinancialStatement,
   ExpenseBreakdown,

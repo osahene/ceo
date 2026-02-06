@@ -1,6 +1,6 @@
 export interface FinancialReportFilters {
   reportType: "monthly" | "annual";
-  period: string; // YYYY-MM for monthly, YYYY for annual
+  period: string; // e.g., "2023-01" for January 2023 or "2023" for the year 2023
   vehicleId?: string; // Optional: specific vehicle or all
   includeCharts: boolean;
 }
