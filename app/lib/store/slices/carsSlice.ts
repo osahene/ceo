@@ -124,6 +124,7 @@ export const carsSlice = createSlice({
   initialState,
   reducers: {
     setSelectedCar: (state, action: PayloadAction<Car | null>) => {
+      console.log("Setting selected car:", action);
       state.selectedCar = action.payload;
     },
     clearError: (state) => {
