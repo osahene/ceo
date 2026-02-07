@@ -30,6 +30,7 @@ export const fetchCars = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.fetchCars();
+      console.log("Fetch Cars Response:", response);
       return response.data; // Adjust based on your actual API shape
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
@@ -137,7 +138,7 @@ export const carsSlice = createSlice({
     });
     builder.addCase(fetchCars.fulfilled, (state, action) => {
       state.loading = false;
-      state.cars = action.payload;
+      state.cars = action.payload.results || [];
     });
     builder.addCase(fetchCars.rejected, (state, action) => {
       state.loading = false;
