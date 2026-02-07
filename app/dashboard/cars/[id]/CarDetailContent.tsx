@@ -8,11 +8,10 @@ import {
     ReceiptCentIcon,
     Wrench,
     Shield,
-    TrendingUp,
     Plus,
-    Edit,
-    Download,
-    ChevronRight,
+    AlertTriangle,
+    RefreshCw,
+    Info,
 } from "lucide-react";
 import {
     LineChart,
@@ -35,30 +34,16 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("overview");
 
-    // Sample data for charts
-    const revenueData = [
-        { month: "Jan", revenue: 4500, expenses: 1200 },
-        { month: "Feb", revenue: 5200, expenses: 1500 },
-        { month: "Mar", revenue: 4800, expenses: 1800 },
-        { month: "Apr", revenue: 6100, expenses: 2200 },
-        { month: "May", revenue: 5500, expenses: 1900 },
-        { month: "Jun", revenue: 6800, expenses: 2500 },
-    ];
-    const timelineEvents = [
-
-        {
-            date: "2023-06-18",
-            type: "revenue",
-            title: "Highest Revenue Month",
-            description: "Multiple long-term rentals",
-            amount: 6800,
-        },
-    ];
-
-    // Safely access nested arrays
     const insurancePolicies = car.insurance_policies || [];
     const maintenanceRecords = car.maintenance_records || [];
     const bookings = car.bookings || [];
+    const timelineEvents = car.timeline_events || [];
+    const analyticsData = car.analytics_data || {};
+
+    // Get monthly data for charts
+    const monthlyData = analyticsData.monthly_data || [];
+    const performanceMetrics = analyticsData.performance_metrics || {};
+    const summary = analyticsData.summary || {};
 
     // Get alias for frontend compatibility
     const registrationDate = car.purchase_date || car.created_at;
@@ -79,6 +64,32 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                 text: "Expiring Soon",
             };
         return { status: "active", color: "bg-green-500", text: "Active" };
+    };
+
+    const getEventIcon = (iconName: string) => {
+        const iconMap: { [key: string]: any } = {
+            'wrench': <Wrench className="w-4 h-4" />,
+            'shield': <Shield className="w-4 h-4" />,
+            'alert-triangle': <AlertTriangle className="w-4 h-4" />,
+            'refresh-cw': <RefreshCw className="w-4 h-4" />,
+            'calendar': <Calendar className="w-4 h-4" />,
+            'cedi-sign': <ReceiptCentIcon className="w-4 h-4" />,
+            'info': <Info className="w-4 h-4" />,
+        };
+        return iconMap[iconName] || <Info className="w-4 h-4" />;
+    };
+
+    const getEventColor = (eventType: string) => {
+        const colorMap: { [key: string]: string } = {
+            'maintenance': 'bg-yellow-500',
+            'insurance': 'bg-blue-500',
+            'booking': 'bg-green-500',
+            'accident': 'bg-red-500',
+            'status_change': 'bg-purple-500',
+            'event': 'bg-gray-500',
+            'revenue': 'bg-green-600',
+        };
+        return colorMap[eventType] || 'bg-gray-500';
     };
 
     return (
@@ -119,7 +130,6 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                 <nav className="flex space-x-8">
                     {[
                         "overview",
-
                         "analytics",
                         "maintenance",
                         "insurance",
@@ -151,64 +161,69 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                                 Vehicle Timeline
                             </h3>
-                            <div className="space-y-4">
-                                {timelineEvents.map((event, index) => (
-                                    <div key={index} className="flex items-start space-x-4">
-                                        <div className="flex flex-col items-center">
-                                            <div
-                                                className={`w-3 h-3 rounded-full ${event.type === "revenue"
-                                                    ? "bg-green-500"
-                                                    : event.type === "maintenance"
-                                                        ? "bg-yellow-500"
-                                                        : event.type === "insurance"
-                                                            ? "bg-blue-500"
-                                                            : event.type === "accident"
-                                                                ? "bg-red-500"
-                                                                : "bg-gray-500"
-                                                    }`}
-                                            />
-                                            {index < timelineEvents.length - 1 && (
-                                                <div className="w-px h-full bg-gray-300 dark:bg-gray-600 mt-1" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 pb-4">
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-medium text-gray-800 dark:text-white">
-                                                    {event.title}
-                                                </h4>
-                                                <span className="text-sm text-gray-500">
-                                                    {new Date(event.date).toLocaleDateString()}
-                                                </span>
+                            {timelineEvents.length > 0 ? (
+                                <div className="space-y-4">
+                                    {timelineEvents.map((event: any, index: number) => (
+                                        <div key={event.id} className="flex items-start space-x-4">
+                                            <div className="flex flex-col items-center">
+                                                <div
+                                                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getEventColor(event.event_type)} text-white`}
+                                                >
+                                                    {getEventIcon(event.icon)}
+                                                </div>
+                                                {index < timelineEvents.length - 1 && (
+                                                    <div className="w-px h-full bg-gray-300 dark:bg-gray-600 mt-2" />
+                                                )}
                                             </div>
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                                                {event.description}
-                                            </p>
-                                            {event.amount && (
-                                                <p className="text-sm font-medium mt-1">
-                                                    Amount:{" "}
-                                                    <span className="text-blue-600">¢{event.amount}</span>
+                                            <div className="flex-1 pb-4">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="font-medium text-gray-800 dark:text-white">
+                                                        {event.title}
+                                                    </h4>
+                                                    <span className="text-sm text-gray-500">
+                                                        {new Date(event.date).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                                                    {event.description}
                                                 </p>
-                                            )}
+                                                {event.amount && (
+                                                    <p className="text-sm font-medium mt-1">
+                                                        Amount:{" "}
+                                                        <span className="text-blue-600">¢{event.amount.toLocaleString()}</span>
+                                                    </p>
+                                                )}
+                                                {event.cost && (
+                                                    <p className="text-sm font-medium mt-1">
+                                                        Cost:{" "}
+                                                        <span className="text-yellow-600">¢{event.cost.toLocaleString()}</span>
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 text-center py-4">No timeline events found</p>
+                            )}
                         </div>
                     )}
 
                     {/* Analytics Charts */}
                     {activeTab === "analytics" && (
                         <>
+                            {/* Revenue vs Bookings Chart */}
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
                                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                                    Revenue vs Expenses
+                                    Monthly Revenue vs Bookings
                                 </h3>
                                 <div className="h-80">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={revenueData}>
+                                        <LineChart data={monthlyData}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                            <XAxis dataKey="month" stroke="#9CA3AF" />
-                                            <YAxis stroke="#9CA3AF" />
+                                            <XAxis dataKey="month_short" stroke="#9CA3AF" />
+                                            <YAxis yAxisId="left" stroke="#9CA3AF" />
+                                            <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" />
                                             <Tooltip
                                                 contentStyle={{
                                                     backgroundColor: "#1F2937",
@@ -219,17 +234,21 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                                             />
                                             <Legend />
                                             <Line
+                                                yAxisId="left"
                                                 type="monotone"
                                                 dataKey="revenue"
+                                                name="Revenue (¢)"
                                                 stroke="#10B981"
                                                 strokeWidth={2}
                                                 dot={{ r: 4 }}
                                                 activeDot={{ r: 6 }}
                                             />
                                             <Line
+                                                yAxisId="right"
                                                 type="monotone"
-                                                dataKey="expenses"
-                                                stroke="#EF4444"
+                                                dataKey="bookings"
+                                                name="Bookings"
+                                                stroke="#3B82F6"
                                                 strokeWidth={2}
                                                 dot={{ r: 4 }}
                                                 activeDot={{ r: 6 }}
@@ -239,40 +258,78 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                                 </div>
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                                    Monthly Performance
-                                </h3>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={revenueData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                            <XAxis dataKey="month" stroke="#9CA3AF" />
-                                            <YAxis stroke="#9CA3AF" />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: "#1F2937",
-                                                    border: "1px solid #374151",
-                                                    borderRadius: "0.5rem",
-                                                }}
-                                                labelStyle={{ color: "#F3F4F6" }}
-                                            />
-                                            <Bar
-                                                dataKey="revenue"
-                                                fill="#10B981"
-                                                radius={[4, 4, 0, 0]}
-                                            />
-                                            <Bar
-                                                dataKey="expenses"
-                                                fill="#EF4444"
-                                                radius={[4, 4, 0, 0]}
-                                            />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                            {/* Performance Metrics */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                        Performance Metrics
+                                    </h3>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600 dark:text-gray-400">Utilization Rate</span>
+                                            <span className="font-medium text-blue-600">
+                                                {performanceMetrics.utilization_rate?.toFixed(1) || 0}%
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600 dark:text-gray-400">Revenue Growth</span>
+                                            <span className={`font-medium ${performanceMetrics.revenue_growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                {performanceMetrics.revenue_growth?.toFixed(1) || 0}%
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600 dark:text-gray-400">Booking Growth</span>
+                                            <span className={`font-medium ${performanceMetrics.booking_growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                {performanceMetrics.booking_growth?.toFixed(1) || 0}%
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-600 dark:text-gray-400">Avg. Booking Value</span>
+                                            <span className="font-medium text-green-600">
+                                                ¢{summary.average_revenue_per_booking?.toFixed(2) || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                        Monthly Performance
+                                    </h3>
+                                    <div className="h-64">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={monthlyData.slice(-6)}> {/* Last 6 months */}
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                                                <XAxis dataKey="month_short" stroke="#9CA3AF" />
+                                                <YAxis stroke="#9CA3AF" />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: "#1F2937",
+                                                        border: "1px solid #374151",
+                                                        borderRadius: "0.5rem",
+                                                    }}
+                                                    labelStyle={{ color: "#F3F4F6" }}
+                                                />
+                                                <Bar
+                                                    dataKey="revenue"
+                                                    name="Revenue"
+                                                    fill="#10B981"
+                                                    radius={[4, 4, 0, 0]}
+                                                />
+                                                <Bar
+                                                    dataKey="bookings"
+                                                    name="Bookings"
+                                                    fill="#3B82F6"
+                                                    radius={[4, 4, 0, 0]}
+                                                />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
                             </div>
                         </>
                     )}
+
 
                     {/* Maintenance Records */}
                     {activeTab === "maintenance" && (
@@ -531,7 +588,23 @@ export default function CarDetailContent({ car }: CarDetailContentProps) {
                                     {bookings.length}
                                 </span>
                             </div>
-                           
+                            <div className="flex items-center justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                    Mileage
+                                </span>
+                                <span className="font-medium text-gray-800 dark:text-white">
+                                    {car.mileage?.toLocaleString()} km
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                    Fuel Type
+                                </span>
+                                <span className="font-medium text-gray-800 dark:text-white">
+                                    {car.fuel_type_display || car.fuel_type}
+                                </span>
+                            </div>
+
                         </div>
                     </div>
 
