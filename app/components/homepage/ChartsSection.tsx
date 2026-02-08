@@ -116,7 +116,7 @@ export default function ChartsSection({ revenueData, dailyData, carDistribution,
                 <XAxis dataKey="month" stroke="#9CA3AF" />
                 <YAxis stroke="#9CA3AF" />
                 <Tooltip
-                  formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+                  formatter={(value: any) => [`¢${Number(value).toLocaleString()}`, 'Revenue']}
                   labelFormatter={(label) => revenueData.find(d => d.month === label)?.month_full || label}
                   contentStyle={{
                     backgroundColor: "#1F2937",
@@ -133,7 +133,7 @@ export default function ChartsSection({ revenueData, dailyData, carDistribution,
                   strokeWidth={3}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Revenue ($)"
+                  name="Revenue (¢)"
                 />
                 <Line
                   type="monotone"
@@ -293,7 +293,7 @@ export default function ChartsSection({ revenueData, dailyData, carDistribution,
                     </td>
                     <td className="py-4 px-4">
                       <span className="font-semibold text-green-600 dark:text-green-400">
-                        ${car.revenue.toLocaleString()}
+                        ¢{car.revenue.toLocaleString()}
                       </span>
                     </td>
                     <td className="py-4 px-4">
