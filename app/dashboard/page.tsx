@@ -25,10 +25,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [growthRates, setGrowthRates] = useState({
-    customers: 12.5,
-    revenue: 8.3,
-    cars: 5.2,
-    bookings: 22,
+    customers: 0,
+    revenue: 0,
+    cars: 0,
+    bookings: 0,
   });
 
   useEffect(() => {
