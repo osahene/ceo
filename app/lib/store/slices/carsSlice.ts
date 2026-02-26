@@ -43,7 +43,8 @@ export const fetchCarById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await apiService.fetchCarById(id);
-      return response.data.data;
+      console.log("API Response for fetchCarById:", response); // Debugging log
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -87,6 +88,7 @@ export const updateCar = createAsyncThunk(
   async ({ id, carData }: { id: string; carData: Partial<Car> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateCar(id, carData);
+      console.log("API Response for updateCar:", response); // Debugging log
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
@@ -111,6 +113,7 @@ export const updateCarStatus = createAsyncThunk(
   async ({ carId, status }: { carId: string; status: string }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateCarStatus(carId, status);
+      console.log("API Response for updateCarStatus:", response); // Debugging log
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(getErrorMessage(error));
